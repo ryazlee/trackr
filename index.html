@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#fafafa" />
+    <meta
+      name="description"
+      content="Mobile-first game score tracker. Flip 7, Hearts, and more — scores stay in your browser."
+    />
+    <meta property="og:site_name" content="trackr" />
+    <meta property="og:title" content="trackr: game score tracker" />
+    <meta
+      property="og:description"
+      content="Keep score for Flip 7, Hearts, and more on your phone. Local-first — nothing leaves your device."
+    />
+    <meta property="og:image" content="https://ryazlee.github.io/trackr/og.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="1200" />
+    <meta property="og:url" content="https://ryazlee.github.io/trackr/" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="trackr: game score tracker" />
+    <meta
+      name="twitter:description"
+      content="Keep score for Flip 7, Hearts, and more on your phone. Local-first — nothing leaves your device."
+    />
+    <meta name="twitter:image" content="https://ryazlee.github.io/trackr/og.png" />
+    <title>trackr: game score tracker</title>
+    <script>
+      try {
+        var saved = localStorage.getItem('trackr-theme')
+        var dark =
+          saved === 'dark' ||
+          (saved !== 'light' &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches)
+        if (dark) {
+          document.documentElement.classList.add('theme-dark')
+          document
+            .querySelector('meta[name="theme-color"]')
+            ?.setAttribute('content', '#09090b')
+        }
+      } catch (e) {}
+    </script>
+    <script>
+      window.goatcounter = { no_onload: true }
+    </script>
+    <script
+      data-goatcounter="https://ryab.goatcounter.com/count"
+      async
+      src="https://gc.zgo.at/count.js"
+    ></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
