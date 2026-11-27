@@ -1,6 +1,6 @@
 # trackr
 
-Mobile-first score tracker for table games. Flip 7 and Hearts ship built-in; sessions live in **localStorage** on this device.
+Mobile-first score tracker for table games. **General** scores plus Flip 7 and Hearts ship built-in; sessions live in **localStorage** on this device.
 
 **Live:** [ryazlee.github.io/trackr](https://ryazlee.github.io/trackr/)
 
@@ -11,12 +11,13 @@ Mobile-first score tracker for table games. Flip 7 and Hearts ship built-in; ses
 
 ## Games
 
-| Game | Target | Wins | Scoring factors |
+| Game | Target | Wins | Scoring |
 |---|---|---|---|
+| **General** | optional / open-ended | highest or lowest | Tap +/−, quick chips (+1/+5/+10/+25), or type points |
 | **Flip 7** | 200 | highest | Number-card sum → ×2 → modifiers (+2…+10) → Flip 7 +15; bust = 0 |
 | **Hearts** | 100 | lowest | Hearts (1 each) + ♠Q (+13); shoot the moon → shooter 0, others 26 |
 
-Built-ins are hardcoded. Custom games can be added later under the `trackr-games` localStorage key (same shape as `GameConfig`).
+Name a General game in setup and optionally **Save for next time** — customs land in `trackr-games` localStorage.
 
 ## Develop
 

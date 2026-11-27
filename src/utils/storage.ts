@@ -1,5 +1,5 @@
 import { BUILTIN_GAMES, getBuiltinGame } from '../games/catalog'
-import type { GameConfig, Session } from '../types'
+import type { GameConfig, ResolvedGame, Session } from '../types'
 
 const SESSIONS_KEY = 'trackr-sessions'
 const GAMES_KEY = 'trackr-games'
@@ -67,6 +67,28 @@ export function saveCustomGames(games: GameConfig[]): void {
 
 export function getGameById(id: string): GameConfig | undefined {
   return loadGames().find((game) => game.id === id)
+}
+
+/** Merge builtin/custom config with per-session overrides. */
+export function resolveGame(session: Session): ResolvedGame | undefined {
+  const base = getGameById(session.gameId)
+  if (!base) return undefined
+  return {
+    ...base,
+    displayName: session.title?.trim() || base.name,
+    targetScore:
+      typeof session.targetScore === 'number' ? session.targetScore : base.targetScore,
+    winCondition: session.winCondition ?? base.winCondition,
+  }
+}
+
+/** Save or update a user game in localStorage (for reuse from home). */
+export function upsertCustomGame(game: GameConfig): GameConfig[] {
+  const games = loadGames()
+  const custom = games.filter((item) => !item.builtin && item.id !== game.id)
+  custom.unshift({ ...game, builtin: false })
+  saveCustomGames(custom)
+  return loadGames()
 }
 
 export function newId(prefix = 'id'): string {

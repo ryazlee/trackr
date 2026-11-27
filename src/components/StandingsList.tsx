@@ -29,7 +29,7 @@ export default function StandingsList({
         const player = byId.get(playerId)
         if (!player) return null
         const total = totals[playerId] ?? 0
-        const over = total >= targetScore
+        const over = targetScore > 0 && total >= targetScore
         const lead = highlightLeader && index === 0
         return (
           <li

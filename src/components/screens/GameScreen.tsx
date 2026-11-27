@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
-import type { GameConfig, Round, Session } from '../../types'
+import type { ResolvedGame, Round, Session } from '../../types'
 import {
   isGameOver,
   standingsOrder,
@@ -16,9 +16,19 @@ import RoundScreen from './RoundScreen'
 
 type GameScreenProps = {
   session: Session
-  game: GameConfig
+  game: ResolvedGame
   onUpdate: (session: Session) => void
   onDelete: () => void
+}
+
+function rulesSubtitle(game: ResolvedGame, finished: boolean, leaderName?: string): string {
+  if (finished) return leaderName ? `${leaderName} wins` : 'Finished'
+  if (game.targetScore <= 0) {
+    return game.winCondition === 'highest' ? 'Open-ended · high score' : 'Open-ended · low score'
+  }
+  return `First to ${game.targetScore} · ${
+    game.winCondition === 'highest' ? 'high score' : 'low score'
+  }`
 }
 
 export default function GameScreen({
@@ -57,7 +67,9 @@ export default function GameScreen({
     )
     if (isGameOver(nextTotals, game.targetScore)) {
       withStamp.status = 'finished'
-    } else if (withStamp.status === 'finished') {
+    } else if (withStamp.status === 'finished' && game.targetScore > 0) {
+      withStamp.status = 'active'
+    } else if (game.targetScore <= 0) {
       withStamp.status = 'active'
     }
     onUpdate(withStamp)
@@ -82,6 +94,14 @@ export default function GameScreen({
     })
   }
 
+  const markFinished = () => {
+    onUpdate({
+      ...session,
+      status: 'finished',
+      updatedAt: new Date().toISOString(),
+    })
+  }
+
   if (mode === 'round') {
     return (
       <RoundScreen
@@ -101,16 +121,8 @@ export default function GameScreen({
     <AppShell
       header={
         <AppHeader
-          title={game.name}
-          subtitle={
-            finished
-              ? leader
-                ? `${leader.name} wins`
-                : 'Finished'
-              : `First to ${game.targetScore} · ${
-                  game.winCondition === 'highest' ? 'high score' : 'low score'
-                }`
-          }
+          title={game.displayName}
+          subtitle={rulesSubtitle(game, finished, leader?.name)}
           backTo="/"
         />
       }
@@ -118,8 +130,8 @@ export default function GameScreen({
         finished ? (
           <>
             <p className="status">
-              {leader ? `${leader.name} wins · ` : ''}
-              Target {game.targetScore}
+              {leader ? `${leader.name} wins` : 'Finished'}
+              {game.targetScore > 0 ? ` · target ${game.targetScore}` : ''}
             </p>
             <div className="actions">
               <Button
@@ -136,17 +148,34 @@ export default function GameScreen({
         ) : (
           <>
             <p className="status">
-              Round {session.rounds.length + 1} · tap a player when scoring
+              Round {session.rounds.length + 1}
+              {game.scoring === 'simple'
+                ? ' · tap +/− or type scores'
+                : ' · tap a player when scoring'}
             </p>
-            <Button
-              label="Add round"
-              icon={<Plus size={16} />}
-              block
-              onClick={() => {
-                setEditingRound(undefined)
-                setMode('round')
-              }}
-            />
+            {game.targetScore <= 0 ? (
+              <div className="actions">
+                <Button
+                  label="Add round"
+                  icon={<Plus size={16} />}
+                  onClick={() => {
+                    setEditingRound(undefined)
+                    setMode('round')
+                  }}
+                />
+                <Button label="End game" variant="secondary" onClick={markFinished} />
+              </div>
+            ) : (
+              <Button
+                label="Add round"
+                icon={<Plus size={16} />}
+                block
+                onClick={() => {
+                  setEditingRound(undefined)
+                  setMode('round')
+                }}
+              />
+            )}
           </>
         )
       }

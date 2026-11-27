@@ -46,12 +46,18 @@ export type Session = {
   status: SessionStatus
   createdAt: string
   updatedAt: string
+  /** Display name override (custom general games) */
+  title?: string
+  /** Per-session target; 0 / undefined with simple games = open-ended */
+  targetScore?: number
+  winCondition?: WinCondition
 }
 
 export type GameConfig = {
   id: GameId
   name: string
   description: string
+  /** 0 means open-ended (no automatic finish) */
   targetScore: number
   winCondition: WinCondition
   playerMin: number
@@ -59,4 +65,9 @@ export type GameConfig = {
   /** Built-in vs user-added later via localStorage */
   builtin: boolean
   scoring: 'flip7' | 'hearts' | 'simple'
+}
+
+/** Effective rules for a session (builtins + optional overrides). */
+export type ResolvedGame = GameConfig & {
+  displayName: string
 }
