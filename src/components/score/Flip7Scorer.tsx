@@ -1,6 +1,6 @@
-import { Minus, Plus } from 'lucide-react'
 import { FLIP7_MODIFIERS } from '../../games/scoring'
 import type { Flip7Entry } from '../../types'
+import PointStepper from './PointStepper'
 
 type Flip7ScorerProps = {
   entry: Flip7Entry
@@ -48,41 +48,14 @@ export default function Flip7Scorer({ entry, onChange, score }: Flip7ScorerProps
         </button>
       </div>
 
-      <div className="stepper-block">
-        <span className="field__label">Number cards</span>
-        <div className="stepper stepper--lg">
-          <button
-            type="button"
-            className="step step--active"
-            disabled={entry.bust || entry.numberSum <= 0}
-            onClick={() => set({ numberSum: Math.max(0, entry.numberSum - 1) })}
-            aria-label="Decrease number sum"
-          >
-            <Minus size={18} />
-          </button>
-          <input
-            className="stepper__value"
-            type="number"
-            inputMode="numeric"
-            disabled={entry.bust}
-            value={entry.numberSum}
-            onChange={(event) => {
-              const next = Number.parseInt(event.target.value || '0', 10)
-              set({ numberSum: Number.isFinite(next) ? Math.max(0, next) : 0 })
-            }}
-            aria-label="Sum of number cards"
-          />
-          <button
-            type="button"
-            className="step step--active"
-            disabled={entry.bust}
-            onClick={() => set({ numberSum: entry.numberSum + 1 })}
-            aria-label="Increase number sum"
-          >
-            <Plus size={18} />
-          </button>
-        </div>
-      </div>
+      <PointStepper
+        label="Number cards"
+        value={entry.numberSum}
+        min={0}
+        quickAdds={[1, 5, 10]}
+        disabled={entry.bust}
+        onChange={(numberSum) => set({ numberSum })}
+      />
 
       <div className="chip-row">
         {FLIP7_MODIFIERS.map((value) => {

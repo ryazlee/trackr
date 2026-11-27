@@ -1,6 +1,6 @@
 import { ChevronRight, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { getGameById, loadGames } from '../../utils/storage'
+import { loadGames, resolveGame } from '../../utils/storage'
 import type { Session } from '../../types'
 import AppHeader from '../AppHeader'
 import AppShell from '../AppShell'
@@ -39,12 +39,12 @@ export default function HomeScreen({ sessions, onDeleteSession }: HomeScreenProp
       header={<AppHeader title="trackr" subtitle="Score games on your phone." quiet />}
     >
       <div className="home-hero">
-        <p className="home__lede">Keep Flip 7, Hearts, and more scores on this device.</p>
+        <p className="home__lede">General scores, Flip 7, Hearts — all on this device.</p>
         <MakerCredit />
-        <Button label="New game" icon={<Plus size={16} />} to="/new" block />
+        <Button label="New game" icon={<Plus size={16} />} to="/new?game=general" block />
       </div>
 
-      <SectionCard title="Games" hint="Built-in for now. Custom games can land in local storage later.">
+      <SectionCard title="Games" hint="General works for any game. Save named customs from setup.">
         <ul className="game-list">
           {games.map((game) => (
             <li key={game.id}>
@@ -64,7 +64,7 @@ export default function HomeScreen({ sessions, onDeleteSession }: HomeScreenProp
         <SectionCard title="In progress">
           <ul className="session-list">
             {active.map((session) => {
-              const game = getGameById(session.gameId)
+              const game = resolveGame(session)
               if (!game) return null
               const totals = totalsForSession(
                 session.players.map((player) => player.id),
@@ -74,7 +74,7 @@ export default function HomeScreen({ sessions, onDeleteSession }: HomeScreenProp
                 <li key={session.id} className="session-card">
                   <Link className="session-card__link" to={`/play/${session.id}`}>
                     <div className="session-card__head">
-                      <span className="session-card__title">{game.name}</span>
+                      <span className="session-card__title">{game.displayName}</span>
                       <span className="session-card__when">{formatWhen(session.updatedAt)}</span>
                     </div>
                     <p className="session-card__meta">
@@ -109,7 +109,7 @@ export default function HomeScreen({ sessions, onDeleteSession }: HomeScreenProp
         <SectionCard title="Recent">
           <ul className="session-list">
             {finished.map((session) => {
-              const game = getGameById(session.gameId)
+              const game = resolveGame(session)
               if (!game) return null
               const totals = totalsForSession(
                 session.players.map((player) => player.id),
@@ -119,7 +119,7 @@ export default function HomeScreen({ sessions, onDeleteSession }: HomeScreenProp
                 <li key={session.id} className="session-card session-card--done">
                   <Link className="session-card__link" to={`/play/${session.id}`}>
                     <div className="session-card__head">
-                      <span className="session-card__title">{game.name}</span>
+                      <span className="session-card__title">{game.displayName}</span>
                       <span className="session-card__when">{formatWhen(session.updatedAt)}</span>
                     </div>
                   </Link>

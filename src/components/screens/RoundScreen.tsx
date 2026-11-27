@@ -43,6 +43,7 @@ export default function RoundScreen({
   onCancel,
   onSave,
 }: RoundScreenProps) {
+  const isSimple = game.scoring === 'simple'
   const [activePlayerId, setActivePlayerId] = useState(session.players[0]?.id ?? '')
   const [entries, setEntries] = useState<Record<string, ScoreEntry>>(() =>
     buildInitialEntries(session, game, round),
@@ -64,7 +65,6 @@ export default function RoundScreen({
   const updateEntry = (playerId: string, entry: ScoreEntry) => {
     setEntries((current) => {
       const next = { ...current, [playerId]: entry }
-      // Hearts: only one moon shooter
       if (entry.kind === 'hearts' && entry.shotMoon) {
         for (const otherId of Object.keys(next)) {
           if (otherId === playerId) continue
@@ -95,7 +95,7 @@ export default function RoundScreen({
     <AppShell
       header={
         <AppHeader
-          title={round ? `Edit round` : `Round ${session.rounds.length + 1}`}
+          title={round ? 'Edit round' : `Round ${session.rounds.length + 1}`}
           subtitle={game.name}
           backTo={`/play/${session.id}`}
         />
@@ -107,50 +107,74 @@ export default function RoundScreen({
         </div>
       }
     >
-      <div className="player-tabs" role="tablist" aria-label="Players">
-        {session.players.map((player) => {
-          const selected = player.id === activePlayerId
-          return (
-            <button
-              key={player.id}
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              className={['player-tab', selected ? 'player-tab--active' : null].filter(Boolean).join(' ')}
-              onClick={() => setActivePlayerId(player.id)}
-            >
-              <span className="player-tab__name">{player.name}</span>
-              <span className="player-tab__score">{scores[player.id] ?? 0}</span>
-            </button>
-          )
-        })}
-      </div>
-
-      {activePlayer && activeEntry ? (
-        <SectionCard title={activePlayer.name} hint="Adjust factors — totals update live.">
-          {activeEntry.kind === 'flip7' ? (
-            <Flip7Scorer
-              entry={activeEntry}
-              score={scoreEntry(activeEntry)}
-              onChange={(entry) => updateEntry(activePlayer.id, entry)}
-            />
-          ) : null}
-          {activeEntry.kind === 'hearts' ? (
-            <HeartsScorer
-              entry={activeEntry}
-              score={scores[activePlayer.id] ?? 0}
-              moonLocked={Boolean(moonShooter && moonShooter !== activePlayer.id)}
-              onChange={(entry) => updateEntry(activePlayer.id, entry)}
-            />
-          ) : null}
-          {activeEntry.kind === 'simple' ? (
-            <SimpleScorer
-              points={activeEntry.points}
-              onChange={(points) => updateEntry(activePlayer.id, { kind: 'simple', points })}
-            />
-          ) : null}
+      {isSimple ? (
+        <SectionCard title="Scores" hint="Tap +/− or type a number for each player.">
+          <ul className="score-board">
+            {session.players.map((player) => {
+              const entry = entries[player.id]
+              if (!entry || entry.kind !== 'simple') return null
+              return (
+                <li key={player.id} className="score-board__row">
+                  <div className="score-board__head">
+                    <span className="score-board__name">{player.name}</span>
+                    <strong className="score-board__points">{entry.points}</strong>
+                  </div>
+                  <SimpleScorer
+                    compact
+                    points={entry.points}
+                    onChange={(points) =>
+                      updateEntry(player.id, { kind: 'simple', points })
+                    }
+                  />
+                </li>
+              )
+            })}
+          </ul>
         </SectionCard>
-      ) : null}
+      ) : (
+        <>
+          <div className="player-tabs" role="tablist" aria-label="Players">
+            {session.players.map((player) => {
+              const selected = player.id === activePlayerId
+              return (
+                <button
+                  key={player.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  className={['player-tab', selected ? 'player-tab--active' : null]
+                    .filter(Boolean)
+                    .join(' ')}
+                  onClick={() => setActivePlayerId(player.id)}
+                >
+                  <span className="player-tab__name">{player.name}</span>
+                  <span className="player-tab__score">{scores[player.id] ?? 0}</span>
+                </button>
+              )
+            })}
+          </div>
+
+          {activePlayer && activeEntry ? (
+            <SectionCard title={activePlayer.name} hint="Adjust factors — totals update live.">
+              {activeEntry.kind === 'flip7' ? (
+                <Flip7Scorer
+                  entry={activeEntry}
+                  score={scoreEntry(activeEntry)}
+                  onChange={(entry) => updateEntry(activePlayer.id, entry)}
+                />
+              ) : null}
+              {activeEntry.kind === 'hearts' ? (
+                <HeartsScorer
+                  entry={activeEntry}
+                  score={scores[activePlayer.id] ?? 0}
+                  moonLocked={Boolean(moonShooter && moonShooter !== activePlayer.id)}
+                  onChange={(entry) => updateEntry(activePlayer.id, entry)}
+                />
+              ) : null}
+            </SectionCard>
+          ) : null}
+        </>
+      )}
 
       <SectionCard title="This round">
         <ul className="round-summary">

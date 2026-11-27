@@ -112,10 +112,12 @@ export function totalsForSession(
   return totals
 }
 
+/** targetScore <= 0 means open-ended — never auto-finish. */
 export function isGameOver(
   totals: Record<string, number>,
   targetScore: number,
 ): boolean {
+  if (targetScore <= 0) return false
   return Object.values(totals).some((score) => score >= targetScore)
 }
 

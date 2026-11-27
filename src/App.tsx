@@ -13,7 +13,7 @@ import SetupScreen from './components/screens/SetupScreen'
 import GameScreen from './components/screens/GameScreen'
 import { ThemeProvider } from './theme'
 import { useSessions } from './hooks/useSessions'
-import { getGameById } from './utils/storage'
+import { resolveGame } from './utils/storage'
 import { trackPageview } from './utils/analytics'
 import type { Session } from './types'
 
@@ -44,7 +44,7 @@ function PlayRoute({
   const { sessionId = '' } = useParams()
   const navigate = useNavigate()
   const session = sessions.find((item) => item.id === sessionId)
-  const game = session ? getGameById(session.gameId) : undefined
+  const game = session ? resolveGame(session) : undefined
 
   if (!session || !game) {
     return <Navigate to="/" replace />
